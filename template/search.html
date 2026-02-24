@@ -1,0 +1,22 @@
+
+<h2>Search Title</h2>
+<form action="{{ url_for('search') }}" method="get">
+    <p class="heading">Title: <input type="text" name="title" value="{{ title_query or '' }}"></p>
+    <p class="heading">Author: <input type="text" name="author" value="{{ author_query or '' }}"></p>
+    <button type="submit">Search</button>
+</form>
+
+{% if (title_query or author_query) and results %}
+<ul>
+    {% for book in results %}
+    <li>{{ book.title }} — {{ book.author }}</li>
+    {% endfor %}
+</ul>
+{% elif title_query or author_query %}
+<p>No matching books found.</p>
+{% endif %}
+
+<form action="{{url_for('index')}}" method="get">
+    <button type="submit">Return Home</button>
+</form>
+

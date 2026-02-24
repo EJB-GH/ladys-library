@@ -1,0 +1,8 @@
+<h2>Add Book</h2>
+<form action="{{ url_for('insert') }}" method="post">
+    <p class="heading">Title: <input type="text" name="title" required></p>
+    <p class="heading">Author: <input type="text" name="author" required></p>
+    <p class="heading">Genre: <input type="text" name="genre" required></p>
+    <p class="heading">Published: <input type="text" name="publish_date" required></p>
+    <button type="submit">Add</button>
+</form>

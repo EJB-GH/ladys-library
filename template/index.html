@@ -10,6 +10,12 @@
     <h2>Incoming Features:</h2>
     <h3>1. View Library</h3>
     <h3>2. Search by keyword</h3>
+    <form action="{{ url_for('search') }}" method="get">
+        <button type="submit">Go to Search</button>
+    </form>
+    <form action="{{ url_for('insert') }}" method="get">
+        <button type="submit">Add a book</button>
+    </form>
     </body>
 
 </html>
