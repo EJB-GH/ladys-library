@@ -8,6 +8,16 @@
     </head>
     <body>
     <h1>Welcome to the Library</h1>
+    <h2>The Most Recent Additions:</h2>
+    {% if entries %}
+        <ul>
+        {% for entry in entries %}
+            <li>{{ entry.title }} - {{ entry.author }} - Added: {{ entry.entry_date }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No books added yet.</p>
+    {% endif %}
     <h2>Incoming Features:</h2>
     <h3>1. View Library</h3>
     <h3>2. Search by keyword</h3>

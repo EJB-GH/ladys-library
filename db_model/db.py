@@ -33,6 +33,19 @@ class db(Model):
         cursor.close()
         connection.close()
 
+    def recent_display(self):
+        connection, cursor = ret_con()
+
+        try:
+            cursor.execute('select title, author, entry_date from books order by entry_date desc limit 5')
+            return cursor.fetchall()
+        except sqlite3.OperationalError:
+            print('Query Issue, contact admin')
+            return []
+        finally:
+            cursor.close()
+            connection.close()
+
     def single_select(self, title=None, author=None):
         """Search the books table.
 
