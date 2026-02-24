@@ -1,9 +1,15 @@
-
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lady's Library | Search</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
 <h2>Search Title</h2>
 <form action="{{ url_for('search') }}" method="get">
     <p class="heading">Title: <input type="text" name="title" value="{{ title_query or '' }}"></p>
     <p class="heading">Author: <input type="text" name="author" value="{{ author_query or '' }}"></p>
-    <button type="submit">Search</button>
+    <button type="submit" class="action_btn">Search</button>
 </form>
 
 {% if (title_query or author_query) and results %}
@@ -17,6 +23,12 @@
 {% endif %}
 
 <form action="{{url_for('index')}}" method="get">
-    <button type="submit">Return Home</button>
+    <div class="buttons">
+        <div class="action_btn">
+            <button type="submit" class="action_btn">Return Home</button>
+        </div>
+    </div>
 </form>
+</body>
+</html>
 

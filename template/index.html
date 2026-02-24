@@ -4,6 +4,7 @@
 
     <head>
     <title>Lady's Library | Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
     <body>
     <h1>Welcome to the Library</h1>
@@ -11,10 +12,10 @@
     <h3>1. View Library</h3>
     <h3>2. Search by keyword</h3>
     <form action="{{ url_for('search') }}" method="get">
-        <button type="submit">Go to Search</button>
+        <button type="submit" class="action_btn">Go to Search</button>
     </form>
     <form action="{{ url_for('insert') }}" method="get">
-        <button type="submit">Add a book</button>
+        <button type="submit" class="action_btn">Add a book</button>
     </form>
     </body>
 

@@ -1,1 +1,13 @@
 h1 {color: blue;}
+
+
+
+.buttons {
+width: 120px;
+margin: 0 auto;
+display: inline;}
+
+    .action_btn {
+width: 120px;
+margin: 0 auto;
+display: inline;}
