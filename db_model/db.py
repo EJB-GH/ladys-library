@@ -1,8 +1,13 @@
 #actual db structure using the model
 
+import os
 import sqlite3
+import psycopg2
+from dotenv import load_dotenv
 from .Model import Model
 from datetime import date
+
+load_dotenv()
 
 db_file = 'library.db'
 
@@ -79,23 +84,28 @@ class db(Model):
             cursor.close()
             connection.close()
 
-    def insert(self, title, author, genre, publish_date, entry_date):
+    def insert(self, title, series, genre, first_pub, ver_edition, author_first, author_last, pub_name):
         """
         Insert a book into the books table.
         """
         params = {
             'title': title,
-            'author': author,
+            'series': series,
             'genre': genre,
-            'publish_date': publish_date,
-            'entry_date': entry_date,
+            'first_pub': first_pub,
+            'ver_edition': ver_edition,
+            'author_first': author_first,
+            'author_last': author_last,
+            'pub_name': pub_name,
+            'date_added': date.today(),
         }
 
-        connection, cursor = ret_con()
+        connection = psycopg2.connect(os.environ.get('DATABASE_URL'))
+        cursor = connection.cursor()
         try:
             cursor.execute(
-                'insert into books (title, author, genre, publish_date, entry_date) '
-                'values (:title, :author, :genre, :publish_date, :entry_date)',
+                'INSERT INTO books (title, series, genre, first_pub, ver_edition, author_first, author_last, pub_name, date_added) '
+                'VALUES (%(title)s, %(series)s, %(genre)s, %(first_pub)s, %(ver_edition)s, %(author_first)s, %(author_last)s, %(pub_name)s, %(date_added)s)',
                 params,
             )
             connection.commit()
