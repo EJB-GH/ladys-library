@@ -1,50 +1,62 @@
 #actual db structure using the model
 
 import os
-import sqlite3
 import psycopg2
+import psycopg2.extras
 from dotenv import load_dotenv
 from .Model import Model
-from datetime import date
 
 load_dotenv()
 
-db_file = 'library.db'
-
 def ret_con():
     '''
-    simple send connection function to save space
-    in class functions
-    RETURNS: a connection to the db
+    Returns a psycopg2 connection and cursor.
     '''
-    connection = sqlite3.connect(db_file)
+    connection = psycopg2.connect(os.environ.get('DATABASE_URL'))
     cursor = connection.cursor()
     return connection, cursor
 
 class db(Model):
     def __init__(self):
+        pass
 
-        #initial connection if the db exists, else make it
-        connection, cursor = ret_con()
 
-        #execute a select to test db existence
+    def check_dupe(self, title, author_first, author_last):
+        """
+        checks for a duplicate entry in the database before the insert
+        return a boolean
+        """
+        connection = psycopg2.connect(os.environ.get('DATABASE_URL'))
+        cursor = connection.cursor()
+        sql = (
+            'SELECT b.id from books as b '
+            'JOIN book_authors as ba ON ba.book_id = b.id '
+            'JOIN authors as a ON ba.author_id = a.id '
+            'WHERE b.title = %(title)s '
+            'AND a.author_first = %(author_first)s '
+            'AND a.author_last = %(author_last)s '
+        )
+        params = {
+            'title': title,
+            'author_first': author_first,
+            'author_last': author_last
+        }
         try:
-            cursor.execute('select * from books')
-        except sqlite3.OperationalError:
-            cursor.execute('create table books (title, author, genre, publish_date, entry_date)')
-
-        connection.commit()
-
-        cursor.close()
-        connection.close()
+            cursor.execute(sql, params)
+            return cursor.fetchone() is None
+        except psycopg2.Error:
+            print('Query Issue, contact admin')
+        finally:
+            cursor.close()
+            connection.close()
 
     def recent_display(self):
         connection, cursor = ret_con()
 
         try:
-            cursor.execute('select title, author, entry_date from books order by entry_date desc limit 5')
+            cursor.execute('SELECT title, date_added FROM books ORDER BY date_added DESC LIMIT 5')
             return cursor.fetchall()
-        except sqlite3.OperationalError:
+        except psycopg2.Error:
             print('Query Issue, contact admin')
             return []
         finally:
@@ -57,25 +69,32 @@ class db(Model):
         Params are optional; when provided, they are matched using SQL LIKE.
         Returns a list of dicts: [{title, author, genre, publish_date, entry_date}, ...]
         """
-        connection = sqlite3.connect(db_file)
-        connection.row_factory = sqlite3.Row
-        cursor = connection.cursor()
+        connection = psycopg2.connect(os.environ.get('DATABASE_URL'))
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-        sql = 'select title, author, genre, publish_date, entry_date from books'
+        sql = (
+            'SELECT b.title, b.series, b.genre, b.first_pub, b.date_added, '
+            'a.author_first, a.author_last '
+            'FROM books b '
+            'JOIN book_authors ba ON b.id = ba.book_id '
+            'JOIN authors a ON ba.author_id = a.id'
+        )
         conditions = []
         params = {}
 
         if title:
-            conditions.append('title like :title')
+            conditions.append('b.title ILIKE %(title)s')
             params['title'] = f'%{title}%'
         if author:
-            conditions.append('author like :author')
+            conditions.append(
+                '(a.author_first ILIKE %(author)s OR a.author_last ILIKE %(author)s)'
+            )
             params['author'] = f'%{author}%'
 
         if conditions:
-            sql += ' where ' + ' and '.join(conditions)
+            sql += ' WHERE ' + ' AND '.join(conditions)
 
-        sql += ' order by entry_date desc'
+        sql += ' ORDER BY b.date_added DESC'
 
         try:
             cursor.execute(sql, params)
@@ -84,32 +103,54 @@ class db(Model):
             cursor.close()
             connection.close()
 
-    def insert(self, title, series, genre, first_pub, ver_edition, author_first, author_last, pub_name):
+    def insert(self, title, author_first, author_last, series, genre, version, publish_date, publisher, entry_date):
         """
         Insert a book into the books table.
         """
-        params = {
-            'title': title,
-            'series': series,
-            'genre': genre,
-            'first_pub': first_pub,
-            'ver_edition': ver_edition,
-            'author_first': author_first,
-            'author_last': author_last,
-            'pub_name': pub_name,
-            'date_added': date.today(),
-        }
 
-        connection = psycopg2.connect(os.environ.get('DATABASE_URL'))
-        cursor = connection.cursor()
-        try:
-            cursor.execute(
-                'INSERT INTO books (title, series, genre, first_pub, ver_edition, author_first, author_last, pub_name, date_added) '
-                'VALUES (%(title)s, %(series)s, %(genre)s, %(first_pub)s, %(ver_edition)s, %(author_first)s, %(author_last)s, %(pub_name)s, %(date_added)s)',
-                params,
-            )
-            connection.commit()
-            return True
-        finally:
-            cursor.close()
-            connection.close()
+        if self.check_dupe(title, author_first, author_last):
+            books_params = {
+                'title': title,
+                'series': series,
+                'genre': genre,
+                'publish_date': publish_date,
+                'version': version,
+                'publisher': publisher,
+                'entry_date': entry_date,
+            }
+
+            author_params = {
+                'author_first': author_first,
+                'author_last': author_last
+            }
+
+            connection = psycopg2.connect(os.environ.get('DATABASE_URL'))
+            cursor = connection.cursor()
+            try:
+                cursor.execute(
+                    'INSERT INTO books (title, series, genre, publish_date, version, publisher, entry_date) '
+                    'VALUES (%(title)s, %(series)s, %(genre)s, %(publish_date)s, %(version)s, %(publisher)s, %(entry_date)s) RETURNING id',
+                    books_params,
+                )
+                book_id = cursor.fetchone()[0]
+                cursor.execute(
+                    'INSERT INTO authors (author_first, author_last) '
+                    'VALUES (%(author_first)s, %(author_last)s) '
+                    'ON CONFLICT ON CONSTRAINT "unique author" '
+                    'DO UPDATE SET author_first = EXCLUDED.author_first '
+                    'RETURNING id',
+                    author_params,
+                )
+                author_id = cursor.fetchone()[0]
+
+                cursor.execute(
+                    'INSERT INTO book_authors (book_id, author_id) '
+                    'VALUES (%(book_id)s, %(author_id)s)',
+                    {'book_id': book_id, 'author_id': author_id},
+                )
+                connection.commit()
+                
+                return True
+            finally:
+                cursor.close()
+                connection.close()
