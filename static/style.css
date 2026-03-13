@@ -11,3 +11,22 @@ display: inline;}
 width: 120px;
 margin: 0 auto;
 display: inline;}
+.input {
+display: inline-block;
+}
+
+.heading {
+    display: flex;
+    align-items: center;
+    margin: 4px 0;
+}
+
+.heading .label {
+    display: inline-block;
+    min-width: 200px;
+}
+
+.heading input {
+    flex: 1;
+    max-width: 300px;
+}

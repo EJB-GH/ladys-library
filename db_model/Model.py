@@ -8,7 +8,7 @@ class Model():
         """
         pass
 
-    def insert(self, title, author_first, author_last, series, genre, version, publish_date, publisher, entry_date):
+    def insert(self, title, author_first, author_last, series, genre, version, first_pub, publisher, date_added):
 
         pass
 

@@ -103,7 +103,7 @@ class db(Model):
             cursor.close()
             connection.close()
 
-    def insert(self, title, author_first, author_last, series, genre, version, publish_date, publisher, entry_date):
+    def insert(self, title, author_first, author_last, series, genre, version, first_pub, publisher, date_added):
         """
         Insert a book into the books table.
         """
@@ -113,10 +113,10 @@ class db(Model):
                 'title': title,
                 'series': series,
                 'genre': genre,
-                'publish_date': publish_date,
+                'first_pub': first_pub,
                 'version': version,
                 'publisher': publisher,
-                'entry_date': entry_date,
+                'date_added': date_added,
             }
 
             author_params = {
@@ -128,8 +128,8 @@ class db(Model):
             cursor = connection.cursor()
             try:
                 cursor.execute(
-                    'INSERT INTO books (title, series, genre, publish_date, version, publisher, entry_date) '
-                    'VALUES (%(title)s, %(series)s, %(genre)s, %(publish_date)s, %(version)s, %(publisher)s, %(entry_date)s) RETURNING id',
+                    'INSERT INTO books (title, series, genre, first_pub, version, publisher, date_added) '
+                    'VALUES (%(title)s, %(series)s, %(genre)s, %(first_pub)s, %(version)s, %(publisher)s, %(date_added)s) RETURNING id',
                     books_params,
                 )
                 book_id = cursor.fetchone()[0]
