@@ -71,7 +71,7 @@ class db(Model):
             cursor.close()
             connection.close()
 
-    def single_select(self, title=None, author_f=None, author_l=None):
+    def single_select(self, title=None, author_first=None, author_last=None):
         """Search the books table.
 
         Params are optional; when provided, they are matched using SQL LIKE.
@@ -93,12 +93,12 @@ class db(Model):
         if title:
             conditions.append('b.title ILIKE %(title)s')
             params['title'] = f'%{title}%'
-        if author_f or author_l:
+        if author_first or author_last:
             conditions.append(
-                '(a.author_first ILIKE %(author_f)s OR a.author_last ILIKE %(author_l)s)'
+                '(a.author_first ILIKE %(author_first)s OR a.author_last ILIKE %(author_last)s)'
             )
-            params['author_f'] = f'%{author_f}%'
-            params['author_l'] = f'%{author_l}%'
+            params['author_first'] = f'%{author_first}%'
+            params['author_last'] = f'%{author_last}%'
 
         if conditions:
             sql += ' WHERE ' + ' AND '.join(conditions)
