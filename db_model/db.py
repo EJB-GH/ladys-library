@@ -53,8 +53,16 @@ class db(Model):
     def recent_display(self):
         connection, cursor = ret_con()
 
+        sql = (
+            'SELECT b.title, b.date_added, '
+            'a.author_first, a.author_last '
+            'FROM books b '
+            'JOIN book_authors ba ON b.id = ba.book_id '
+            'JOIN authors a ON ba.author_id = a.id'
+        )
+
         try:
-            cursor.execute('SELECT title, date_added FROM books ORDER BY date_added DESC LIMIT 5')
+            cursor.execute(sql + ' ORDER BY b.date_added DESC LIMIT 5')
             return cursor.fetchall()
         except psycopg2.Error:
             print('Query Issue, contact admin')
@@ -63,7 +71,7 @@ class db(Model):
             cursor.close()
             connection.close()
 
-    def single_select(self, title=None, author=None):
+    def single_select(self, title=None, author_f=None, author_l=None):
         """Search the books table.
 
         Params are optional; when provided, they are matched using SQL LIKE.
@@ -85,11 +93,12 @@ class db(Model):
         if title:
             conditions.append('b.title ILIKE %(title)s')
             params['title'] = f'%{title}%'
-        if author:
+        if author_f or author_l:
             conditions.append(
-                '(a.author_first ILIKE %(author)s OR a.author_last ILIKE %(author)s)'
+                '(a.author_first ILIKE %(author_f)s OR a.author_last ILIKE %(author_l)s)'
             )
-            params['author'] = f'%{author}%'
+            params['author_f'] = f'%{author_f}%'
+            params['author_l'] = f'%{author_l}%'
 
         if conditions:
             sql += ' WHERE ' + ' AND '.join(conditions)

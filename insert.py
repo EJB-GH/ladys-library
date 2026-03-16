@@ -11,7 +11,7 @@ class Insert(MethodView):
         db = db_model.get_db()
 
         title = request.form.get('title', '').strip()
-        author_parts = request.form.get('author', '').strip().split(' ', 1)
+        author_parts = request.form.get('author', '').strip().rsplit(' ', 1)
         author_first = author_parts[0]
         author_last = author_parts[1] if len(author_parts) > 1 else ''
         series = request.form.get('series', '').strip()

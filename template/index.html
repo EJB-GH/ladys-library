@@ -12,7 +12,7 @@
     {% if entries %}
         <ul>
         {% for entry in entries %}
-            <li>{{ entry.title }} - {{ entry.author }} - Added: {{ entry.entry_date }}</li>
+            <li>{{ entry.title }} - {{ entry.author }} - Added: {{ entry.date_added }}</li>
         {% endfor %}
         </ul>
     {% else %}
