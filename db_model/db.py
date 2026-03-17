@@ -8,14 +8,6 @@ from .Model import Model
 
 load_dotenv()
 
-def ret_con():
-    '''
-    Returns a psycopg2 connection and cursor.
-    '''
-    connection = psycopg2.connect(os.environ.get('DATABASE_URL'))
-    cursor = connection.cursor()
-    return connection, cursor
-
 class db(Model):
     def __init__(self):
         pass
@@ -51,7 +43,8 @@ class db(Model):
             connection.close()
 
     def recent_display(self):
-        connection, cursor = ret_con()
+        connection = psycopg2.connect(os.environ.get('DATABASE_URL'))
+        cursor = connection.cursor()
 
         sql = (
             'SELECT b.title, b.date_added, '
@@ -163,3 +156,23 @@ class db(Model):
             finally:
                 cursor.close()
                 connection.close()
+
+    def delete_book(self, title):
+        """
+        Delete a book from the books table by title.
+        """
+        connection = psycopg2.connect(os.environ.get('DATABASE_URL'))
+        cursor = connection.cursor()
+        try:
+            cursor.execute(
+                'DELETE FROM book_authors WHERE book_id = (SELECT id FROM books WHERE title ILIKE %s)',
+                (title,)
+            )
+            cursor.execute('DELETE FROM books WHERE title ILIKE %s', (title,))
+            connection.commit()
+        except psycopg2.Error:
+            connection.rollback()
+            print('Delete failed, contact admin')
+        finally:
+            cursor.close()
+            connection.close()

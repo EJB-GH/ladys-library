@@ -9,7 +9,9 @@ class Model():
         pass
 
     def insert(self, title, author_first, author_last, series, genre, version, first_pub, publisher, date_added):
+        pass
 
+    def delete_book(self, title):
         pass
 
 
