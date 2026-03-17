@@ -8,6 +8,9 @@ class Insert(MethodView):
         return render_template('insert.html')
 
     def post(self):
+
+        #capitalize first letter of each word in book titles
+        #same with author, pub, etc.
         db = db_model.get_db()
 
         title = request.form.get('title', '').strip()
