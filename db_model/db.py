@@ -105,6 +105,37 @@ class db(Model):
             cursor.close()
             connection.close()
 
+    def author_search(self, author_first, author_last):
+        """
+        searches the database, finds and author
+        if found, returns all books by that author
+
+        PARAMS: author_first(string), author_last(string)
+        RETURNS: list of dict objects containing book information
+        """
+        connection = psycopg2.connect(os.environ.get('DATABASE_URL'))
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = (
+            'SELECT b.title, b.series, b.genre, b.version, b.first_pub, '
+            'a.author_first, a.author_last '
+            'FROM books b '
+            'JOIN book_authors ba ON b.id = ba.book_id '
+            'JOIN authors a ON a.id = ba.author_id '
+            'WHERE a.author_first ILIKE %(author_first)s OR a.author_last ILIKE %(author_last)s'
+        )
+        params = {'author_first': f'%{author_first}%',
+        'author_last': f'%{author_last}%'}
+
+        try:
+            cursor.execute(sql, params)
+            return [dict(row) for row in cursor.fetchall()]
+        finally:
+            cursor.close()
+            connection.close()
+
+
+
     def insert(self, title, author_first, author_last, series, genre, version, first_pub, publisher, date_added):
         """
         Insert a book into the books table.
@@ -161,6 +192,8 @@ class db(Model):
         """
         Delete a book from the books table by title.
         """
+
+        #look into deleting authors with no books as part of the deletion processes
         connection = psycopg2.connect(os.environ.get('DATABASE_URL'))
         cursor = connection.cursor()
         try:

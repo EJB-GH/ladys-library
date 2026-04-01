@@ -8,6 +8,9 @@ class Model():
         """
         pass
 
+    def author_search(self, author_first, author_last):
+        pass
+
     def insert(self, title, author_first, author_last, series, genre, version, first_pub, publisher, date_added):
         pass
 
