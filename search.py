@@ -8,10 +8,15 @@ class Search(MethodView):
         title = request.args.get('title', '').strip()
         author = request.args.get('author', '').strip()
 
+        author_first = author.split(' ')[0] if author else None
+        author_last = author.split(' ')[-1] if author else None
         results = []
-        if title or author:
-            results = db.single_select(title=title or None, author=author or None)
-           
+        if title and author:
+            results = db.single_select(title=title, author_first=author_first or None, author_last=author_last or None)
+        elif title:
+            results = db.single_select(title=title)
+        elif author:
+            results = db.author_search(author_first=author_first, author_last=author_last)
 
         return render_template(
             'search.html',

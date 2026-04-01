@@ -8,13 +8,21 @@ class Insert(MethodView):
         return render_template('insert.html')
 
     def post(self):
+
+        #capitalize first letter of each word in book titles
+        #same with author, pub, etc.
         db = db_model.get_db()
 
         title = request.form.get('title', '').strip()
-        author = request.form.get('author', '').strip()
+        author_parts = request.form.get('author', '').strip().rsplit(' ', 1)
+        author_first = author_parts[0]
+        author_last = author_parts[1] if len(author_parts) > 1 else ''
+        series = request.form.get('series', '').strip()
         genre = request.form.get('genre', '').strip()
-        publish_date = request.form.get('publish_date', '').strip()
-        entry_date = str(date.today())
+        version = request.form.get('version', '').strip()
+        first_pub = request.form.get('publish_date', '').strip()
+        publisher = request.form.get('publisher', '').strip()
+        date_added = str(date.today())
 
-        db.insert(title, author, genre, publish_date, entry_date)
+        db.insert(title, author_first, author_last, series, genre, version, first_pub, publisher, date_added)
         return redirect(url_for('index'))

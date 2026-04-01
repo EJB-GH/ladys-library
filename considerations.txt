@@ -1,0 +1,10 @@
+<Thinking over features>
+
+1. What kind of searches do we want implemented
+>> by Title, author
+>> All books for author, series, genre?
+>>>Long running -> maybe a nearly english NLP search with an MCP?
+
+2. When deleting a book, should we check for that author to have other books, if not, should that author be removed?
+
+

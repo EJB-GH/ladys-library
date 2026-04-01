@@ -12,20 +12,24 @@
     {% if entries %}
         <ul>
         {% for entry in entries %}
-            <li>{{ entry.title }} - {{ entry.author }} - Added: {{ entry.entry_date }}</li>
+            <li>{{ entry.title }} - {{ entry.author }} - Added: {{ entry.date_added }}</li>
         {% endfor %}
         </ul>
     {% else %}
         <p>No books added yet.</p>
     {% endif %}
     <h2>Incoming Features:</h2>
-    <h3>1. View Library</h3>
-    <h3>2. Search by keyword</h3>
+    <h3>1. More search types</h3>
+    <h3>2. Check delete for author with no books</h3>
+    <h3>3. Authorization</h3>
     <form action="{{ url_for('search') }}" method="get">
         <button type="submit" class="action_btn">Go to Search</button>
     </form>
     <form action="{{ url_for('insert') }}" method="get">
         <button type="submit" class="action_btn">Add a book</button>
+    </form>
+    <form action="{{ url_for('delete') }}" method="get">
+        <button type="submit" class="action_btn">Delete a book</button>
     </form>
     </body>
 
