@@ -134,7 +134,34 @@ class db(Model):
             cursor.close()
             connection.close()
 
+    def series_search(self, series):
+        """
+        searches the database, find a series and returns
+        all books in the series
 
+        PARAMS: series(string)
+        RETURNS: list of dict objects with book information
+        """
+
+        connection = psycopg2.connect(os.environ.get('DATABASE_URL'))
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        sql = (
+            'SELECT b.title, b.series, b.version, b.first_pub, '
+            'a.author_first, a.author_last '
+            'FROM books b '
+            'JOIN book_authors ba ON b.id = ba.book_id '
+            'JOIN authors a ON a.id = ba.author_id '
+            'WHERE b.series ILIKE %(series)s'
+        )
+        params = {'series': f'%{series}%'}
+
+        try:
+            cursor.execute(sql, params)
+            return [dict(row) for row in cursor.fetchall()]
+        finally:
+            cursor.close()
+            connection.close()
 
     def insert(self, title, author_first, author_last, series, genre, version, first_pub, publisher, date_added):
         """

@@ -7,6 +7,7 @@ class Search(MethodView):
         db = db_model.get_db()
         title = request.args.get('title', '').strip()
         author = request.args.get('author', '').strip()
+        series = request.args.get('series', '').strip()
 
         author_first = author.split(' ')[0] if author else None
         author_last = author.split(' ')[-1] if author else None
@@ -17,10 +18,13 @@ class Search(MethodView):
             results = db.single_select(title=title)
         elif author:
             results = db.author_search(author_first=author_first, author_last=author_last)
+        elif series:
+            results = db.series_search(series=series)
 
         return render_template(
             'search.html',
             results=results,
             title_query=title,
             author_query=author,
+            series_query=series
         )

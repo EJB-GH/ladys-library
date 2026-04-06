@@ -5,20 +5,28 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<h2>Search Title</h2>
+<h2>Search</h2>
 <form action="{{ url_for('search') }}" method="get">
     <p class="heading">Title: <input type="text" name="title" value="{{ title_query or '' }}"></p>
     <p class="heading">Author: <input type="text" name="author" value="{{ author_query or '' }}"></p>
+    <p class="heading">Series: <input type="text" name="series" value="{{ series_query or '' }}"></p>
     <button type="submit" class="action_btn">Search</button>
 </form>
 
 {% if (title_query or author_query) and results %}
 <ul>
     {% for book in results %}
-    <li>{{ book.title }} — {{ book.author_first }} {{ book.author_last }}{% if book.version %} ({{ book.version }}){% endif %}</li>
+    <li>{{ book.title }} — {{ book.author_first }} {{ book.author_last }}{%if book.series%} ({{book.series}}) {%endif %} ({{ book.version }})</li>
     {% endfor %}
 </ul>
-{% elif title_query or author_query %}
+{% elif series_query and results %}
+<p>{{series_query}}</p>
+<ul>
+    {% for book in results %}
+    <li> {{book.title}} - {{book.author_first}} {{book.author_last}} - Published: {{book.version}}</li>
+    {% endfor %}
+</ul>
+{% else %}
 <p>No matching books found.</p>
 {% endif %}
 
